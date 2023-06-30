@@ -23,50 +23,17 @@ public class Main {
         });
         generateTextThread.start();
         Thread searchingForAThread = new Thread(() -> {
-            int maxA = 0;
-            for (int i = 0; i < 10_000; i++) {
-                try {
-                    int numberOfAInText = countNumberOfLetter(searchingForA.take(), 'a');
-                    if (numberOfAInText > maxA) {
-                        maxA = numberOfAInText;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            System.out.println("Максимальное количество букв a:" + maxA);
+            maxNumberOfLetter(searchingForA, 'a');
 
         });
         searchingForAThread.start();
         Thread searchingForBThread = new Thread(() -> {
-            int maxB = 0;
-            for (int i = 0; i < 10_000; i++) {
-                try {
-                    int numberOfBInText = countNumberOfLetter(searchingForB.take(), 'b');
-                    if (numberOfBInText > maxB) {
-                        maxB = numberOfBInText;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            System.out.println("Максимальное количество букв b:" + maxB);
+            maxNumberOfLetter(searchingForB, 'b');
 
         });
         searchingForBThread.start();
         Thread searchingForCThread = new Thread(() -> {
-            int maxC = 0;
-            for (int i = 0; i < 10_000; i++) {
-                try {
-                    int numberOfCInText = countNumberOfLetter(searchingForC.take(), 'c');
-                    if (numberOfCInText > maxC) {
-                        maxC = numberOfCInText;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            System.out.println("Максимальное количество букв c:" + maxC);
+            maxNumberOfLetter(searchingForC, 'c');
 
         });
         searchingForCThread.start();
@@ -89,13 +56,26 @@ public class Main {
         return text.toString();
     }
 
-    public static int countNumberOfLetter(String text, char letter) {
-        int resultCount = 0;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == letter) {
-                resultCount++;
+    public static void maxNumberOfLetter(ArrayBlockingQueue<String> queue, char letter) {
+        int max = 0;
+        String text = "";
+        for (int i = 0; i < 10_000; i++) {
+            int resultCount = 0;
+            try {
+                text = queue.take();
+                for (int j = 0; j < text.length(); j++) {
+                    if (text.charAt(j) == letter) {
+                        resultCount++;
+                    }
+                }
+
+                if (resultCount > max) {
+                    max = resultCount;
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
-        return resultCount;
+        System.out.println("Максимальное количество букв " + letter + ":" + max);
     }
 }
